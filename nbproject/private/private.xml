@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/resources/fxml/InstalacionView.fxml</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/config/Credentials.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/resources/fxml/LoginView.fxml</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/resources/css/Style.css</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/controller/InstalacionController.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/Main.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/model/Instalacion.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/controller/LoginController.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/util/SceneManager.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/repository/InstalacionRepository.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/resources/fxml/RegisterView.fxml</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/controller/RegisterController.java</file>
+            <file>file:/C:/Users/Informatica/Documents/hoja2/sport-life/src/main/java/edu/jm/sportlife/config/DataBaseConnection.java</file>
+        </group>
+    </open-files>
+</project-private>
