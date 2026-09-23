@@ -1,6 +1,8 @@
 package main.java.edu.jm.sportlife.controller;
 
 import main.java.edu.jm.sportlife.config.DataBaseConnection;
+import main.java.edu.jm.sportlife.model.Usuario;
+import main.java.edu.jm.sportlife.repository.UsuarioRepository;
 import main.java.edu.jm.sportlife.util.SceneManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -15,19 +17,18 @@ public class LoginController {
     @FXML private PasswordField txtFieldPass;
 
     private SceneManager sceneManager;
+    private final UsuarioRepository usuarioRepository = new UsuarioRepository();
 
-    // Constructor vacío exigido por JavaFX
     public LoginController() {
     }
 
-    // Permite inyectar SceneManager desde fuera si es necesario
     public void setSceneManager(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
     }
 
     @FXML
     private void handleLogin() {
-        String email = txtFieldEmail != null ? txtFieldEmail.getText() : "";
+        String email = txtFieldEmail != null ? txtFieldEmail.getText().trim() : "";
         String pass = txtFieldPass != null ? txtFieldPass.getText() : "";
 
         if (email.isEmpty() || pass.isEmpty()) {
@@ -35,15 +36,21 @@ public class LoginController {
             return;
         }
 
-        // Simulación o navegación al Dashboard
         try {
-            mostrarAlerta("Éxito", "Bienvenido al sistema.", Alert.AlertType.INFORMATION);
+            Usuario usuario = usuarioRepository.login(email, pass);
+
+            if (usuario == null) {
+                mostrarAlerta("Credenciales incorrectas", "El correo o la contraseña no son válidos.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            mostrarAlerta("Bienvenido", "Hola " + usuario.getNombre() + ", inicio de sesión exitoso.", Alert.AlertType.INFORMATION);
             if (sceneManager != null) {
                 sceneManager.showDashBoardView();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo cargar la pantalla principal: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta("Error", "No se pudo iniciar sesión: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 

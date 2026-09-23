@@ -89,22 +89,33 @@ public class InstalacionController implements Initializable {
     private void guardarInstalacion() {
         if (txtCodigo == null || txtCodigo.getText().isEmpty() || txtDescripcion.getText().isEmpty() || 
             txtPrecioHora.getText().isEmpty() || cmbDeporte.getValue() == null) {
-            if (sceneManager != null) {
-                sceneManager.showInfoAlert("Campos Vacíos", "Atención", "Complete todos los campos obligatorios.", Alert.AlertType.WARNING);
-            }
+            alertar("Campos vacíos", "Completa todos los campos obligatorios.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String codigo = txtCodigo.getText().trim();
+        String descripcion = txtDescripcion.getText().trim();
+        String deporte = cmbDeporte.getValue();
+        boolean techada = chkTechada.isSelected();
+        double precio;
+
+        try {
+            precio = Double.parseDouble(txtPrecioHora.getText().trim());
+        } catch (NumberFormatException e) {
+            alertar("Dato inválido", "El precio por hora debe ser un número (ej: 50.00).", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (precio <= 0) {
+            alertar("Dato inválido", "El precio por hora debe ser mayor a cero.", Alert.AlertType.WARNING);
             return;
         }
 
         try {
-            String codigo = txtCodigo.getText();
-            String descripcion = txtDescripcion.getText();
-            String deporte = cmbDeporte.getValue();
-            boolean techada = chkTechada.isSelected();
-            double precio = Double.parseDouble(txtPrecioHora.getText());
-
             if (instalacionSeleccionada == null) {
                 Instalacion nueva = new Instalacion(codigo, descripcion, deporte, techada, precio);
                 instalacionRepository.guardar(nueva);
+                alertar("Instalación guardada", "La instalación \"" + codigo + "\" se registró correctamente.", Alert.AlertType.INFORMATION);
             } else {
                 instalacionSeleccionada.setCodigo(codigo);
                 instalacionSeleccionada.setDescripcion(descripcion);
@@ -112,24 +123,56 @@ public class InstalacionController implements Initializable {
                 instalacionSeleccionada.setTechada(techada);
                 instalacionSeleccionada.setPrecioHora(precio);
                 instalacionRepository.actualizar(instalacionSeleccionada);
+                alertar("Instalación actualizada", "Los cambios se guardaron correctamente.", Alert.AlertType.INFORMATION);
             }
 
             limpiarFormulario();
             cargarDatos();
         } catch (Exception e) {
             e.printStackTrace();
+            String msg = e.getMessage() != null && e.getMessage().toLowerCase().contains("duplicate")
+                    ? "Ya existe una instalación registrada con el código \"" + codigo + "\"."
+                    : "No se pudo guardar la instalación: " + e.getMessage();
+            alertar("Error al guardar", msg, Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void eliminarInstalacion() {
-        if (instalacionSeleccionada == null) return;
-        try {
-            instalacionRepository.eliminar(instalacionSeleccionada.getIdInstalacion());
-            limpiarFormulario();
-            cargarDatos();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (instalacionSeleccionada == null) {
+            alertar("Sin selección", "Selecciona una instalación de la tabla para eliminar.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Seguro que deseas eliminar la instalación \"" + instalacionSeleccionada.getCodigo() + "\"?");
+
+        confirmacion.showAndWait().ifPresent(respuesta -> {
+            if (respuesta == ButtonType.OK) {
+                try {
+                    instalacionRepository.eliminar(instalacionSeleccionada.getIdInstalacion());
+                    alertar("Instalación eliminada", "El registro se eliminó correctamente.", Alert.AlertType.INFORMATION);
+                    limpiarFormulario();
+                    cargarDatos();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    alertar("Error al eliminar", "No se pudo eliminar la instalación: " + e.getMessage(), Alert.AlertType.ERROR);
+                }
+            }
+        });
+    }
+
+    private void alertar(String titulo, String contenido, Alert.AlertType tipo) {
+        if (sceneManager != null) {
+            sceneManager.showInfoAlert(titulo, null, contenido, tipo);
+        } else {
+            Alert alert = new Alert(tipo);
+            alert.setTitle(titulo);
+            alert.setHeaderText(null);
+            alert.setContentText(contenido);
+            alert.showAndWait();
         }
     }
 

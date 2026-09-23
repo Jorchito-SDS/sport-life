@@ -1,5 +1,7 @@
 package main.java.edu.jm.sportlife.controller;
 
+import main.java.edu.jm.sportlife.model.Usuario;
+import main.java.edu.jm.sportlife.repository.UsuarioRepository;
 import main.java.edu.jm.sportlife.util.SceneManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -15,6 +17,7 @@ public class RegisterController {
     @FXML private PasswordField txtFieldConfirmPass;
 
     private SceneManager sceneManager;
+    private final UsuarioRepository usuarioRepository = new UsuarioRepository();
 
     public RegisterController() {
     }
@@ -25,30 +28,50 @@ public class RegisterController {
 
     @FXML
     private void handleRegister() {
-        String nombre = txtFieldNombre != null ? txtFieldNombre.getText() : "";
-        String apellido = txtFieldApellido != null ? txtFieldApellido.getText() : "";
-        String email = txtFieldEmail != null ? txtFieldEmail.getText() : "";
-        String pass = txtFieldPass != null ? txtFieldPass.getText() : "";
-        String confirmPass = txtFieldConfirmPass != null ? txtFieldConfirmPass.getText() : "";
+        String nombre = txtFieldNombre.getText().trim();
+        String apellido = txtFieldApellido.getText().trim();
+        String email = txtFieldEmail.getText().trim();
+        String pass = txtFieldPass.getText();
+        String confirmPass = txtFieldConfirmPass.getText();
 
-        if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-            mostrarAlerta("Campos vacíos", "Por favor complete todos los campos.", Alert.AlertType.WARNING);
+        if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || pass.isEmpty() || confirmPass.isEmpty()) {
+            mostrarAlerta("Campos vacíos", "Todos los campos son obligatorios.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+            mostrarAlerta("Correo inválido", "Ingresa un correo electrónico válido.", Alert.AlertType.WARNING);
             return;
         }
 
         if (!pass.equals(confirmPass)) {
-            mostrarAlerta("Contraseña no coincide", "Las contraseñas ingresadas no son iguales.", Alert.AlertType.ERROR);
+            mostrarAlerta("Contraseñas distintas", "La contraseña y su confirmación no coinciden.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (pass.length() < 6) {
+            mostrarAlerta("Contraseña débil", "La contraseña debe tener al menos 6 caracteres.", Alert.AlertType.WARNING);
             return;
         }
 
         try {
-            mostrarAlerta("Éxito", "Usuario registrado correctamente.", Alert.AlertType.INFORMATION);
+            if (usuarioRepository.existeEmail(email)) {
+                mostrarAlerta("Correo en uso", "Ya existe una cuenta registrada con ese correo.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            Usuario nuevo = new Usuario(nombre, apellido, email, pass);
+            usuarioRepository.registrar(nuevo);
+
+            mostrarAlerta("Registro exitoso", "Tu cuenta fue creada correctamente. Ahora puedes iniciar sesión.", Alert.AlertType.INFORMATION);
+            limpiarFormulario();
+
             if (sceneManager != null) {
                 sceneManager.showLoginView();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo volver al Login: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta("Error", "No se pudo completar el registro: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -60,8 +83,16 @@ public class RegisterController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo cargar la vista de Login.", Alert.AlertType.ERROR);
+            mostrarAlerta("Error", "No se pudo volver al login.", Alert.AlertType.ERROR);
         }
+    }
+
+    private void limpiarFormulario() {
+        txtFieldNombre.clear();
+        txtFieldApellido.clear();
+        txtFieldEmail.clear();
+        txtFieldPass.clear();
+        txtFieldConfirmPass.clear();
     }
 
     private void mostrarAlerta(String titulo, String contenido, Alert.AlertType tipo) {
